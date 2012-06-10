@@ -45,6 +45,10 @@
     <constructor-arg ref="dataSource"/>
     <constructor-arg ref="lookupStrategy"/>
     <constructor-arg ref="aclCache"/>
+<!-- if MySQL
+ 	<property name="classIdentityQuery" value="SELECT @@IDENTITY"/>
+	<property name="sidIdentityQuery" value="SELECT @@IDENTITY"/>
+-->
   </bean>
 
 </beans>
