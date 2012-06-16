@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-configuration PUBLIC "-//Hibernate/Hibernate Configuration DTD//EN"
+                                         "http://hibernate.sourceforge.net/hibernate-configuration-3.0.dtd">
+<hibernate-configuration>
+	<session-factory>
+		<property name="current_session_context_class">thread</property>
+		<property name="cache.provider_class">org.hibernate.cache.NoCacheProvider</property>
+
+		<!-- Spring Security related entities -->			
+		<mapping class="sample.contact.hibernate.entity.ACLSIDEntity" />
+		<mapping class="sample.contact.hibernate.entity.ACLClassEntity" />
+		<mapping class="sample.contact.hibernate.entity.ACLObjectIdentityEntity" />
+		<mapping class="sample.contact.hibernate.entity.ACLEntryEntity" />
+		
+		<!-- Application related entities -->
+		<mapping class="sample.contact.hibernate.entity.UserEntity" />
+		<mapping class="sample.contact.hibernate.entity.AuthorityEntity" />
+		<mapping class="sample.contact.hibernate.entity.ContactEntity" />
+	</session-factory>
+</hibernate-configuration>

@@ -17,23 +17,23 @@
         <property name="basename" value="classpath:org/springframework/security/messages"/>
     </bean>
 
-<!-- If MySQL  
+    <!-- If MySQL  
     <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
         <property name="driverClassName" value="com.mysql.jdbc.Driver"/>
         <property name="url" value="jdbc:mysql://localhost/springworks_security_contacts"/>
         <property name="username" value="springworks"/>
         <property name="password" value="springworks"/>
     </bean> 
--->
+    -->
 
-    <!-- If HSQLDB -->
+    <!-- If HSQLDB --> 
     <bean id="dataSource" class="org.springframework.jdbc.datasource.DriverManagerDataSource">
         <property name="driverClassName" value="org.hsqldb.jdbcDriver"/>
         <property name="url" value="jdbc:hsqldb:mem:test"/>
         <property name="username" value="sa"/>
         <property name="password" value=""/>
     </bean>
- 
+
     <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
         <property name="dataSource" ref="dataSource"/>
     </bean>
@@ -44,11 +44,16 @@
         <property name="dataSource" ref="dataSource"/>
         <property name="mutableAclService" ref="aclService"/>
         <property name="platformTransactionManager" ref="transactionManager"/>
-        <!-- If HSQLDB -->
+        <!-- If HSQLDB --> 
         <property name="createScript" value="/springworks_security_contacts.hsqldb.ddl.sql"/>
-        <!-- if MySQL
+        <property name="hibernatePropertiesFile" value="/hibernate_hsqldb.properties"/>
+        
+        <!-- if MySQL 
         <property name="createScript" value="/springworks_security_contacts.mysql.ddl.sql"/>
-         -->
+        <property name="hibernatePropertiesFile" value="/hibernate_mysql.properties"/>
+        -->
+        
+        <property name="useHibernate" value="true"/>
     </bean>
 
     <bean id="contactManager" class="sample.contact.ContactManagerBackend">

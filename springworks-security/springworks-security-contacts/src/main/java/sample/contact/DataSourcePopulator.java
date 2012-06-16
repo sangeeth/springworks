@@ -43,6 +43,8 @@ import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
 import org.springframework.util.Assert;
 
+import sample.contact.hibernate.HibernateUtil;
+
 /**
  * Populates the Contacts in-memory database with contact and ACL information.
  *
@@ -52,6 +54,9 @@ public class DataSourcePopulator implements InitializingBean {
     //~ Instance fields ================================================================================================
 
     private String createScript; 
+    
+    private String hibernatePropertiesFile;
+    private boolean useHibernate;
     
     JdbcTemplate template;
     private MutableAclService mutableAclService;
@@ -95,21 +100,21 @@ public class DataSourcePopulator implements InitializingBean {
            Encoded password for jane is "wombat"
 
          */
-        template.execute("INSERT INTO users VALUES('rod','a564de63c2d0da68cf47586ee05984d7',TRUE);");
-        template.execute("INSERT INTO users VALUES('dianne','65d15fe9156f9c4bbffd98085992a44e',TRUE);");
-        template.execute("INSERT INTO users VALUES('scott','2b58af6dddbd072ed27ffc86725d7d3a',TRUE);");
-        template.execute("INSERT INTO users VALUES('peter','22b5c9accc6e1ba628cedc63a72d57f8',FALSE);");
-        template.execute("INSERT INTO users VALUES('bill','2b58af6dddbd072ed27ffc86725d7d3a',TRUE);");
-        template.execute("INSERT INTO users VALUES('bob','2b58af6dddbd072ed27ffc86725d7d3a',TRUE);");
-        template.execute("INSERT INTO users VALUES('jane','2b58af6dddbd072ed27ffc86725d7d3a',TRUE);");
-        template.execute("INSERT INTO authorities VALUES('rod','ROLE_USER');");
-        template.execute("INSERT INTO authorities VALUES('rod','ROLE_SUPERVISOR');");
-        template.execute("INSERT INTO authorities VALUES('dianne','ROLE_USER');");
-        template.execute("INSERT INTO authorities VALUES('scott','ROLE_USER');");
-        template.execute("INSERT INTO authorities VALUES('peter','ROLE_USER');");
-        template.execute("INSERT INTO authorities VALUES('bill','ROLE_USER');");
-        template.execute("INSERT INTO authorities VALUES('bob','ROLE_USER');");
-        template.execute("INSERT INTO authorities VALUES('jane','ROLE_USER');");
+        template.execute("INSERT INTO users (USERNAME,PASSWORD,ENABLED) VALUES('rod','a564de63c2d0da68cf47586ee05984d7',TRUE);");
+        template.execute("INSERT INTO users (USERNAME,PASSWORD,ENABLED) VALUES('dianne','65d15fe9156f9c4bbffd98085992a44e',TRUE);");
+        template.execute("INSERT INTO users (USERNAME,PASSWORD,ENABLED) VALUES('scott','2b58af6dddbd072ed27ffc86725d7d3a',TRUE);");
+        template.execute("INSERT INTO users (USERNAME,PASSWORD,ENABLED) VALUES('peter','22b5c9accc6e1ba628cedc63a72d57f8',FALSE);");
+        template.execute("INSERT INTO users (USERNAME,PASSWORD,ENABLED) VALUES('bill','2b58af6dddbd072ed27ffc86725d7d3a',TRUE);");
+        template.execute("INSERT INTO users (USERNAME,PASSWORD,ENABLED) VALUES('bob','2b58af6dddbd072ed27ffc86725d7d3a',TRUE);");
+        template.execute("INSERT INTO users (USERNAME,PASSWORD,ENABLED) VALUES('jane','2b58af6dddbd072ed27ffc86725d7d3a',TRUE);");
+        template.execute("INSERT INTO authorities (USERNAME,AUTHORITY) VALUES('rod','ROLE_USER');");
+        template.execute("INSERT INTO authorities (USERNAME,AUTHORITY) VALUES('rod','ROLE_SUPERVISOR');");
+        template.execute("INSERT INTO authorities (USERNAME,AUTHORITY) VALUES('dianne','ROLE_USER');");
+        template.execute("INSERT INTO authorities (USERNAME,AUTHORITY) VALUES('scott','ROLE_USER');");
+        template.execute("INSERT INTO authorities (USERNAME,AUTHORITY) VALUES('peter','ROLE_USER');");
+        template.execute("INSERT INTO authorities (USERNAME,AUTHORITY) VALUES('bill','ROLE_USER');");
+        template.execute("INSERT INTO authorities (USERNAME,AUTHORITY) VALUES('bob','ROLE_USER');");
+        template.execute("INSERT INTO authorities (USERNAME,AUTHORITY) VALUES('jane','ROLE_USER');");
 
         template.execute("INSERT INTO contacts VALUES (1, 'John Smith', 'john@somewhere.com');");
         template.execute("INSERT INTO contacts VALUES (2, 'Michael Citizen', 'michael@xyz.com');");
@@ -205,24 +210,28 @@ public class DataSourcePopulator implements InitializingBean {
     
     protected void createTables() throws Exception {
         
-        System.out.printf("Creating tables using %s\n", this.createScript);
-        
-        InputStream in = this.getClass().getResourceAsStream(this.createScript);
-              
-        BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-        
-        SQLParser parser = new SQLParser(reader);
-        
-        while(parser.hasMore()) {
-           String stmt = parser.nextStatement();
-           if (stmt.length()>0) {
-               System.out.printf("Executing %s\n",stmt);
-               template.execute(stmt);
-           }
+        if (this.useHibernate) {
+            HibernateUtil.configure(this.hibernatePropertiesFile);
+        } else {
+            System.out.printf("Creating tables using %s\n", this.createScript);
+            
+            InputStream in = this.getClass().getResourceAsStream(this.createScript);
+                  
+            BufferedReader reader = new BufferedReader(new InputStreamReader(in));
+            
+            SQLParser parser = new SQLParser(reader);
+            
+            while(parser.hasMore()) {
+               String stmt = parser.nextStatement();
+               if (stmt.length()>0) {
+                   System.out.printf("Executing %s\n",stmt);
+                   template.execute(stmt);
+               }
+            }
+            
+            reader.close();  
+            in.close();
         }
-        
-        reader.close();  
-        in.close();
     }
 
     private void changeOwner(int contactNumber, String newOwnerUsername) {
@@ -264,6 +273,14 @@ public class DataSourcePopulator implements InitializingBean {
     
     public void setCreateScript(String createScript) {
         this.createScript = createScript;
+    }
+    
+    public void setHibernatePropertiesFile(String hibernatePropertiesFile) {
+        this.hibernatePropertiesFile = hibernatePropertiesFile;
+    }
+
+    public void setUseHibernate(boolean useHibernate) {
+        this.useHibernate = useHibernate;
     }
 
     public void setPlatformTransactionManager(PlatformTransactionManager platformTransactionManager) {
